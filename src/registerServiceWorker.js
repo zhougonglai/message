@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-
+const app = require('../package');
 import { register } from 'register-service-worker';
 
 if (process.env.NODE_ENV === 'production') {
-	register(`${process.env.BASE_URL}service-worker.js`, {
+	register(`${process.env.BASE_URL}service-worker.js?${app.version}`, {
 		ready() {
 			console.log(
 				'App is being served from cache by a service worker.\n' +

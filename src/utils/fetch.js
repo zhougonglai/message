@@ -2,6 +2,7 @@ export default class Request {
 	baseUrl;
 	init = {
 		credentials: 'include',
+		mode: 'cors',
 	};
 	controller;
 

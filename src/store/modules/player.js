@@ -24,7 +24,6 @@ export default {
 			playList.audio = new Audio(player.audio.url);
 			playList.play = true;
 			playList.audio.addEventListener('canplaythrough', () => {
-				console.log(playList.audio);
 				playList.audio.play();
 			});
 			playList.audio.addEventListener('ended', () => {

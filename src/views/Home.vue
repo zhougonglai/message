@@ -1,5 +1,5 @@
 <template>
-	<div class="home">
+	<v-container fluid class="home">
 		<v-row>
 			<template v-if="players.length">
 				<v-col
@@ -80,7 +80,7 @@
 				</v-col>
 			</template>
 		</v-row>
-	</div>
+	</v-container>
 </template>
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
