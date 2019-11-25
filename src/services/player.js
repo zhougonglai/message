@@ -3,7 +3,7 @@ import Request from '@/utils/fetch';
 export default class PlayerRequest {
 	request;
 	constructor() {
-		this.request = new Request(process.env.BASE_URL);
+		this.request = new Request(process.env.BASE_PATH);
 	}
 
 	getPlayers() {
