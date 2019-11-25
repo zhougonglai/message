@@ -21,7 +21,16 @@ export default {
 	mutations: {
 		activePlayer({ playList }, player) {
 			playList.active = player;
-			playList.list.push(player);
+			playList.audio = new Audio(player.audio.url);
+			playList.play = true;
+			playList.audio.addEventListener('canplaythrough', () => {
+				console.log(playList.audio);
+				playList.audio.play();
+			});
+			playList.audio.addEventListener('ended', () => {
+				playList.play = false;
+			});
+			playList.list = playList.list.concat([player]);
 		},
 		SET_PLAYER(state, data) {
 			state.players = data.map(player => ({

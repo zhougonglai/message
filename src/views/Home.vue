@@ -66,7 +66,7 @@
 								small
 								color="primary"
 								close-icon="play_circle_filled"
-								@click:close="activePlayer(player)"
+								@click:close.capture="activePlayer(player)"
 							>
 								{{ player.audio.duation }}s
 							</v-chip>
