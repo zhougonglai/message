@@ -51,7 +51,7 @@
 						<v-card-subtitle class="pb-0" v-text="player.label" />
 						<v-card-text :class="player.service.length > 3 ? 'pa-0' : 'py-0'">
 							<v-chip-group>
-								<v-chip v-for="(server, i) of player.service" :key="i">
+								<v-chip small v-for="(server, i) of player.service" :key="i">
 									{{ server.game }}
 								</v-chip>
 							</v-chip-group>

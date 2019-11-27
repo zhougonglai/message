@@ -1,0 +1,26 @@
+{
+	"builds": [{ "src": "api/**/**.js", "use": "@now/node" }],
+	"routes": [
+		{
+			"src": "/api/(.*)",
+			"dest": "/api/$1.js",
+			"headers": {
+				"Access-Control-Allow-Origin": "*"
+			}
+		},
+		{
+			"src": "/api/base/(.*)",
+			"dest": "/api/base/$1.js",
+			"headers": {
+				"Access-Control-Allow-Origin": "*"
+			}
+		},
+		{
+			"src": "/*",
+			"headers": {
+				"Access-Control-Allow-Origin": "*"
+			},
+			"dest": "/api/index.js"
+		}
+	]
+}

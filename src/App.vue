@@ -83,39 +83,38 @@
 			</v-list>
 
 			<v-spacer />
-			<v-card v-if="playList.list.length" id="player">
-				<v-list-item>
-					<v-list-item-avatar>
-						<v-img
-							:aspect-ratio="1"
-							:src="playList.active.avatar"
-							lazy-src="@/assets/pice.png"
-							:alt="playList.active.nickname"
-							:key="playList.active.user_id"
-						>
-							<template v-slot:placeholder>
-								<v-row class="fill-height ma-0" align="center" justify="center">
-									<v-progress-circular indeterminate color="blue" />
-								</v-row>
-							</template>
-						</v-img>
-					</v-list-item-avatar>
-					<v-list-item-content>
-						<v-list-item-title>{{
-							playList.active.nickname
-						}}</v-list-item-title>
-						<v-list-item-subtitle>{{
-							playList.active.label
-						}}</v-list-item-subtitle>
-					</v-list-item-content>
-					<v-list-item-action>
-						<v-btn icon large>
-							<v-icon>play_circle_filled</v-icon>
-						</v-btn>
-					</v-list-item-action>
-				</v-list-item>
-			</v-card>
 		</v-navigation-drawer>
+		<v-card v-if="playList.list.length" id="player">
+			<v-list-item>
+				<v-list-item-avatar>
+					<v-img
+						:aspect-ratio="1"
+						:src="playList.active.avatar"
+						lazy-src="@/assets/pice.png"
+						:alt="playList.active.nickname"
+						:key="playList.active.user_id"
+					>
+						<template v-slot:placeholder>
+							<v-row class="fill-height ma-0" align="center" justify="center">
+								<v-progress-circular indeterminate color="blue" />
+							</v-row>
+						</template>
+					</v-img>
+				</v-list-item-avatar>
+				<v-list-item-content>
+					<v-list-item-title>{{ playList.active.nickname }}</v-list-item-title>
+					<v-list-item-subtitle>{{
+						playList.active.label
+					}}</v-list-item-subtitle>
+				</v-list-item-content>
+				<v-list-item-action>
+					<v-btn icon large>
+						<v-icon v-if="playList.play">stop</v-icon>
+						<v-icon v-else>play_circle_filled</v-icon>
+					</v-btn>
+				</v-list-item-action>
+			</v-list-item>
+		</v-card>
 
 		<v-content>
 			<router-view />
@@ -160,7 +159,9 @@ export default {
 }
 
 #player {
-	position: absolute;
+	position: fixed;
 	bottom: 15px;
+	z-index: 4;
+	border-radius: 0 34px 34px 0;
 }
 </style>

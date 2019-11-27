@@ -21,6 +21,9 @@ export default {
 	mutations: {
 		activePlayer({ playList }, player) {
 			playList.active = player;
+			if (playList.play) {
+				playList.audio.pause();
+			}
 			playList.audio = new Audio(player.audio.url);
 			playList.play = true;
 			playList.audio.addEventListener('canplaythrough', () => {
