@@ -22,7 +22,10 @@ export default {
 		activePlayer({ playList }, player) {
 			playList.active = player;
 			if (playList.play) {
-				playList.audio.pause();
+				if (playList.audio instanceof Audio) {
+					playList.audio.pause();
+				}
+				playList.play = false;
 			}
 			playList.audio = new Audio(player.audio.url);
 			playList.play = true;
@@ -32,7 +35,9 @@ export default {
 			playList.audio.addEventListener('ended', () => {
 				playList.play = false;
 			});
-			playList.list = playList.list.concat([player]);
+			if (!playList.list.some(({ user_id }) => user_id === player.user_id)) {
+				playList.list.push(player);
+			}
 		},
 		SET_PLAYER(state, data) {
 			state.players = data.map(player => ({
