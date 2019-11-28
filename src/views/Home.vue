@@ -1,5 +1,5 @@
 <template>
-	<v-container fluid class="home">
+	<v-container class="home">
 		<v-card v-if="playList.list.length" id="player">
 			<v-list-item>
 				<v-list-item-avatar>
@@ -43,7 +43,7 @@
 					v-for="player of players"
 					:key="player.user_id"
 				>
-					<v-card shaped full-width>
+					<v-card shaped>
 						<v-img
 							:aspect-ratio="1"
 							:src="player.avatar"

@@ -8,6 +8,7 @@
 				</svg>
 				<span class="title">Message</span>
 			</div>
+			<v-spacer />
 			<v-text-field
 				class="ml-5"
 				solo-inverted

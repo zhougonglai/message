@@ -42,7 +42,7 @@
 						<div class="chart-container full-height" v-scroll:#main="onScroll">
 							<div
 								class="cell-list"
-								v-for="(messager, key) of messageList"
+								v-for="(messager, key) of messages"
 								:key="key"
 							>
 								<div class="cell-item">
@@ -171,15 +171,18 @@
 	</v-container>
 </template>
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 export default {
 	name: 'Detail',
 	data: () => ({
 		message: '',
 	}),
 	computed: {
-		...mapState('message', ['messageList']),
 		...mapGetters('player', ['getPlayer']),
+		...mapGetters('message', ['getMessage']),
+		messages() {
+			return this.getMessage(this.$route.params.id);
+		},
 		player() {
 			return this.getPlayer(this.$route.params.id);
 		},
