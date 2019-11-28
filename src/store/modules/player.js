@@ -11,7 +11,11 @@ export default {
 			audio: null,
 		},
 	}),
-	getters: {},
+	getters: {
+		getPlayer: state => id => {
+			return state.players.find(player => player.user_id === id);
+		},
+	},
 	actions: {
 		async getPlayer({ commit }) {
 			const { data } = await new Player().getPlayers();
@@ -37,6 +41,15 @@ export default {
 			});
 			if (!playList.list.some(({ user_id }) => user_id === player.user_id)) {
 				playList.list.push(player);
+			}
+		},
+		// #bug : store player fix
+		audioPause({ playList }) {
+			if (playList.play) {
+				if (playList.audio instanceof Audio) {
+					playList.audio.pause();
+				}
+				playList.play = false;
 			}
 		},
 		SET_PLAYER(state, data) {

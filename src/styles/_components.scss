@@ -24,6 +24,9 @@
 			.label {
 				flex-shrink: 0;
 			}
+			.content-title {
+				min-width: 25vw;
+			}
 			.time-line {
 				position: absolute;
 				bottom: 4px;
@@ -40,6 +43,34 @@
 					z-index: -1;
 					transform: skew(-12deg);
 				}
+			}
+		}
+		.content-payload {
+			padding: 0 65px;
+		}
+
+		.bable {
+			min-width: 25vw;
+			padding: 4px 8px;
+			background-color: var(--mdc-theme-primary);
+			color: white;
+			&.self {
+				border-radius: 8px 0 8px 8px;
+			}
+		}
+
+		.item-avatar {
+			margin-right: 8px;
+			max-width: 3.25rem;
+			height: 3.25rem;
+			&:last-child {
+				margin-left: 16px;
+			}
+			img,
+			.v-image {
+				border-radius: 50%;
+				width: inherit;
+				height: inherit;
 			}
 		}
 

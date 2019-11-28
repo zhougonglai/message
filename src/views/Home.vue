@@ -1,5 +1,36 @@
 <template>
 	<v-container fluid class="home">
+		<v-card v-if="playList.list.length" id="player">
+			<v-list-item>
+				<v-list-item-avatar>
+					<v-img
+						:aspect-ratio="1"
+						:src="playList.active.avatar"
+						lazy-src="@/assets/pice.png"
+						:alt="playList.active.nickname"
+						:key="playList.active.user_id"
+					>
+						<template v-slot:placeholder>
+							<v-row class="fill-height ma-0" align="center" justify="center">
+								<v-progress-circular indeterminate color="blue" />
+							</v-row>
+						</template>
+					</v-img>
+				</v-list-item-avatar>
+				<v-list-item-content>
+					<v-list-item-title>{{ playList.active.nickname }}</v-list-item-title>
+					<v-list-item-subtitle>{{
+						playList.active.label
+					}}</v-list-item-subtitle>
+				</v-list-item-content>
+				<v-list-item-action>
+					<v-btn icon large @click="activePlayer(playList.active)">
+						<v-icon v-if="playList.play">stop</v-icon>
+						<v-icon v-else>play_circle_filled</v-icon>
+					</v-btn>
+				</v-list-item-action>
+			</v-list-item>
+		</v-card>
 		<v-row>
 			<template v-if="players.length">
 				<v-col
@@ -8,16 +39,19 @@
 					md="4"
 					sm="6"
 					xs="12"
+					class="flex-grow-1"
 					v-for="player of players"
 					:key="player.user_id"
 				>
-					<v-card shaped>
+					<v-card shaped full-width>
 						<v-img
 							:aspect-ratio="1"
 							:src="player.avatar"
 							lazy-src="@/assets/pice.png"
+							min-width="225"
 							:alt="player.nickname"
-							class="align-end"
+							class="align-end mx-auto pointer"
+							@click="$router.push({ path: '/detail/' + player.user_id })"
 						>
 							<template v-slot:placeholder>
 								<v-row class="fill-height ma-0" align="center" justify="center">
@@ -45,11 +79,21 @@
 								</div>
 							</div>
 						</v-img>
-						<v-card-title>
+						<v-card-title
+							class="pointer"
+							@click="$router.push({ path: '/detail/' + player.user_id })"
+						>
 							{{ player.nickname }}
 						</v-card-title>
-						<v-card-subtitle class="pb-0" v-text="player.label" />
-						<v-card-text :class="player.service.length > 3 ? 'pa-0' : 'py-0'">
+						<v-card-subtitle
+							class="pb-0 pointer"
+							v-text="player.label"
+							@click="$router.push({ path: '/detail/' + player.user_id })"
+						/>
+						<v-card-text
+							class="py-0"
+							@click="$router.push({ path: '/detail/' + player.user_id })"
+						>
 							<v-chip-group>
 								<v-chip small v-for="(server, i) of player.service" :key="i">
 									{{ server.game }}
@@ -57,7 +101,7 @@
 							</v-chip-group>
 						</v-card-text>
 						<v-card-actions>
-							<div class="price text-danger bold">
+							<div class="price text-danger bold unselect">
 								{{ player.price }}<small>/每小时</small>
 							</div>
 							<v-spacer />
@@ -75,8 +119,23 @@
 				</v-col>
 			</template>
 			<template v-else>
-				<v-col xl="2" lg="3" md="4" sm="6" xs="12" v-for="i of 12" :key="i">
-					<v-skeleton-loader loading class="mx-auto" type="card" />
+				<v-col
+					cols
+					xl="2"
+					lg="3"
+					md="4"
+					sm="6"
+					xs="12"
+					v-for="i of 12"
+					class="flex-grow-1"
+					:key="i"
+				>
+					<v-skeleton-loader
+						loading
+						class="mx-auto"
+						type="card"
+						min-width="225"
+					/>
 				</v-col>
 			</template>
 		</v-row>
@@ -87,7 +146,7 @@ import { mapState, mapActions, mapMutations } from 'vuex';
 export default {
 	name: 'Home',
 	computed: {
-		...mapState('player', ['players']),
+		...mapState('player', ['players', 'playList']),
 	},
 	methods: {
 		...mapActions('player', ['getPlayer']),
@@ -100,7 +159,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .home {
-	padding: 0 12px;
+	padding: 12px 12px 0 12px;
 	.avatar-info {
 		display: flex;
 		padding: 8px 12px;

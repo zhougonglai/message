@@ -6,6 +6,14 @@
 	user-select: none;
 }
 
+.full-height {
+	height: 100%;
+}
+
+.full-width {
+	width: 100%;
+}
+
 // 文字中划线
 .text-through {
 	text-decoration: line-through;
@@ -37,6 +45,10 @@
 
 .flex {
 	display: flex;
+}
+
+.inline-block {
+	display: inline-block;
 }
 
 .fill {

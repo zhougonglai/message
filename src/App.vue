@@ -1,8 +1,8 @@
 <template>
 	<v-app id="app">
-		<v-app-bar app color="white" :clipped-left="$vuetify.breakpoint.lgAndUp">
+		<v-app-bar app color="white">
 			<v-app-bar-nav-icon @click="drawer = !drawer" />
-			<div class="d-flex align-center mx-5 unselect">
+			<div class="d-flex align-center mx-5  pointer" @click="$router.push('/')">
 				<svg class="logo mr-2" aria-hidden="true">
 					<use xlink:href="#icon-message1" />
 				</svg>
@@ -33,11 +33,7 @@
 			</v-btn>
 		</v-app-bar>
 
-		<v-navigation-drawer
-			v-model="drawer"
-			:clipped="$vuetify.breakpoint.lgAndUp"
-			app
-		>
+		<v-navigation-drawer v-model="drawer" app temporary>
 			<v-list expand shaped>
 				<template v-for="item in items">
 					<v-subheader v-if="item.heading" :key="item.heading">{{
@@ -84,37 +80,6 @@
 
 			<v-spacer />
 		</v-navigation-drawer>
-		<v-card v-if="playList.list.length" id="player">
-			<v-list-item>
-				<v-list-item-avatar>
-					<v-img
-						:aspect-ratio="1"
-						:src="playList.active.avatar"
-						lazy-src="@/assets/pice.png"
-						:alt="playList.active.nickname"
-						:key="playList.active.user_id"
-					>
-						<template v-slot:placeholder>
-							<v-row class="fill-height ma-0" align="center" justify="center">
-								<v-progress-circular indeterminate color="blue" />
-							</v-row>
-						</template>
-					</v-img>
-				</v-list-item-avatar>
-				<v-list-item-content>
-					<v-list-item-title>{{ playList.active.nickname }}</v-list-item-title>
-					<v-list-item-subtitle>{{
-						playList.active.label
-					}}</v-list-item-subtitle>
-				</v-list-item-content>
-				<v-list-item-action>
-					<v-btn icon large>
-						<v-icon v-if="playList.play">stop</v-icon>
-						<v-icon v-else>play_circle_filled</v-icon>
-					</v-btn>
-				</v-list-item-action>
-			</v-list-item>
-		</v-card>
 
 		<v-content>
 			<router-view />
@@ -122,11 +87,11 @@
 	</v-app>
 </template>
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 export default {
 	name: 'App',
 	data: () => ({
-		drawer: true,
+		drawer: false,
 		items: [
 			{ heading: '游戏' },
 			{ icon: '#icon-ziyuan', text: '英雄联盟' },
@@ -143,7 +108,14 @@ export default {
 		],
 	}),
 	computed: {
+		...mapState(['routerModule']),
 		...mapState('player', ['playList']),
+	},
+	methods: {
+		...mapMutations('player', ['activePlayer', 'audioPause']),
+	},
+	mounted() {
+		this.audioPause();
 	},
 };
 </script>
