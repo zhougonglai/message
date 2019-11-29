@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import player from './modules/player';
 import message from './modules/message';
+import user from './modules/user';
 
 Vue.use(Vuex);
 
@@ -27,6 +28,7 @@ export default new Vuex.Store({
 	modules: {
 		player,
 		message,
+		user,
 	},
 	plugins: [
 		createPersistedState({

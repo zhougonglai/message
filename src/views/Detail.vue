@@ -40,28 +40,32 @@
 					</v-banner>
 					<div id="main" class="flex-grow-1">
 						<div class="chart-container full-height" v-scroll:#main="onScroll">
-							<div
-								class="cell-list"
-								v-for="(messager, key) of messages"
-								:key="key"
-							>
-								<div class="cell-item">
-									<div class="item-content">
-										<div class="fill"></div>
-										<div class="content-title text-end large bold">
-											{{ messager.user.nickname }}
+							<template v-if="messages.length">
+								<div
+									class="cell-list"
+									v-for="(messager, key) of messages"
+									:key="key"
+								>
+									<div class="cell-item">
+										<div class="item-content">
+											<div class="fill"></div>
+											<div class="content-title text-end">
+												{{ messager.user.nickname || messager.user.nickName }}
+											</div>
+											<div class="item-avatar">
+												<v-img
+													:src="messager.user.avatar || messager.user.imageUrl"
+												/>
+											</div>
 										</div>
-										<div class="item-avatar">
-											<v-img :src="messager.user.avatar"></v-img>
-										</div>
-									</div>
-									<div class="content-payload d-flex justify-end">
-										<div class="bable self">
-											{{ messager.message.payload }}
+										<div class="content-payload d-flex justify-end">
+											<div class="bable self">
+												{{ messager.message.payload }}
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
+							</template>
 						</div>
 					</div>
 					<v-divider />
@@ -93,14 +97,6 @@
 							</template>
 							<input id="chart" v-model="message" />
 						</v-input>
-						<!-- <div class="carter d-flex align-center">
-							<v-text-field
-								prepend-icon="mic_none"
-								append-outer-icon="send"
-								outlined
-								v-model="message"
-							/>
-						</div> -->
 					</div>
 				</div>
 			</v-col>
@@ -171,17 +167,21 @@
 	</v-container>
 </template>
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions, mapState } from 'vuex';
 export default {
 	name: 'Detail',
 	data: () => ({
 		message: '',
 	}),
 	computed: {
+		...mapState('user', ['info']),
+		...mapState('message', ['messageList']),
 		...mapGetters('player', ['getPlayer']),
 		...mapGetters('message', ['getMessage']),
 		messages() {
-			return this.getMessage(this.$route.params.id);
+			return this.$route.params.id in this.messageList
+				? this.getMessage(this.$route.params.id)
+				: [];
 		},
 		player() {
 			return this.getPlayer(this.$route.params.id);
@@ -197,10 +197,11 @@ export default {
 		sendMessage(type = 'text') {
 			if (this.message) {
 				this.updateMessage({
-					user: this.player,
+					user: this.info,
+					to: this.player,
+					date: Date.now(),
 					message: {
 						type,
-						date: Date.now(),
 						payload: this.message,
 					},
 				}).then(() => {

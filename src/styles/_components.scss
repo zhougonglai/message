@@ -26,6 +26,7 @@
 			}
 			.content-title {
 				min-width: 25vw;
+				line-height: 52px;
 			}
 			.time-line {
 				position: absolute;
@@ -51,9 +52,9 @@
 
 		.bable {
 			min-width: 25vw;
-			padding: 4px 8px;
-			background-color: var(--mdc-theme-primary);
-			color: white;
+			padding: 6px 12px;
+			background-color: var(--geekblue-1);
+			color: black;
 			&.self {
 				border-radius: 8px 0 8px 8px;
 			}

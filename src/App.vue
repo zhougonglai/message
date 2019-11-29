@@ -24,12 +24,9 @@
 			<v-btn icon>
 				<v-icon>mdi-bell</v-icon>
 			</v-btn>
-			<v-btn icon large>
+			<v-btn icon large v-if="'nickName' in info">
 				<v-avatar size="32px" item>
-					<v-img
-						src="https://resume.zhougonglai.now.sh/WechatIMG37.jpeg"
-						alt="user"
-					/>
+					<v-img :src="info.imageUrl" :alt="info.nickName" />
 				</v-avatar>
 			</v-btn>
 		</v-app-bar>
@@ -88,7 +85,7 @@
 	</v-app>
 </template>
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 export default {
 	name: 'App',
 	data: () => ({
@@ -110,13 +107,16 @@ export default {
 	}),
 	computed: {
 		...mapState(['routerModule']),
+		...mapState('user', ['info']),
 		...mapState('player', ['playList']),
 	},
 	methods: {
 		...mapMutations('player', ['activePlayer', 'audioPause']),
+		...mapActions('user', ['getUser']),
 	},
 	mounted() {
 		this.audioPause();
+		this.getUser();
 	},
 };
 </script>

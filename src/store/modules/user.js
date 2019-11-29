@@ -1,4 +1,4 @@
-import UserService from '@/service/user';
+import UserService from '@/services/user';
 
 const userService = new UserService();
 
@@ -10,7 +10,7 @@ export default {
 	getter: {},
 	actions: {
 		async getUser({ commit }) {
-			const { data } = await userService.getUser();
+			const { data } = await userService.getUserInfo();
 			commit('setUser', data);
 			return data;
 		},

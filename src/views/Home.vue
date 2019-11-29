@@ -51,7 +51,7 @@
 							min-width="225"
 							:alt="player.nickname"
 							class="align-end mx-auto pointer"
-							@click="$router.push({ path: '/detail/' + player.user_id })"
+							@click="chartWith(player)"
 						>
 							<template v-slot:placeholder>
 								<v-row class="fill-height ma-0" align="center" justify="center">
@@ -79,21 +79,15 @@
 								</div>
 							</div>
 						</v-img>
-						<v-card-title
-							class="pointer"
-							@click="$router.push({ path: '/detail/' + player.user_id })"
-						>
+						<v-card-title class="pointer" @click="chartWith(player)">
 							{{ player.nickname }}
 						</v-card-title>
 						<v-card-subtitle
 							class="pb-0 pointer"
 							v-text="player.label"
-							@click="$router.push({ path: '/detail/' + player.user_id })"
+							@click="chartWith(player)"
 						/>
-						<v-card-text
-							class="py-0"
-							@click="$router.push({ path: '/detail/' + player.user_id })"
-						>
+						<v-card-text class="py-0" @click="chartWith(player)">
 							<v-chip-group>
 								<v-chip small v-for="(server, i) of player.service" :key="i">
 									{{ server.game }}
@@ -151,6 +145,11 @@ export default {
 	methods: {
 		...mapActions('player', ['getPlayer']),
 		...mapMutations('player', ['activePlayer']),
+		...mapMutations('message', ['createMessageBox']),
+		chartWith(player) {
+			this.createMessageBox(player.user_id);
+			this.$router.push({ path: '/detail/' + player.user_id });
+		},
 	},
 	mounted() {
 		this.getPlayer();

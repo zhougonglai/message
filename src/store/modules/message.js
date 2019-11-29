@@ -4,21 +4,25 @@ export default {
 		messageList: {},
 	}),
 	getters: {
+		// 请确保使用时已经为该id创建了 @messageBox
 		getMessage: state => id => {
 			return state.messageList[id];
 		},
 	},
 	actions: {
-		async updateMessage({ commit }, { user, date, message }) {
-			return commit('SET_MESSAGE', { user, date, message });
+		async updateMessage({ commit }, { user, to, date, message }) {
+			return commit('SET_MESSAGE', { user, to, date, message });
 		},
 	},
 	mutations: {
-		SET_MESSAGE(state, { user, date, message }) {
-			if (!(user.user_id in state.messageList)) {
-				state.messageList[user.user_id] = [];
+		createMessageBox(state, id) {
+			state.messageList[id] = [];
+		},
+		SET_MESSAGE(state, { user, to, date, message }) {
+			if (!(to.user_id in state.messageList)) {
+				state.messageList[to.user_id] = [];
 			}
-			state.messageList[user.user_id].push({ user, date, message });
+			state.messageList[to.user_id].push({ user, to, date, message });
 		},
 	},
 };
