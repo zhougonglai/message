@@ -3,7 +3,9 @@ export default class Request {
 	init = {
 		credentials: 'include',
 		mode: 'cors',
-		'Access-Control-Allow-Origin': '*',
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+		},
 	};
 	controller;
 
