@@ -188,8 +188,11 @@ export default {
 		},
 	},
 	methods: {
+		// TODO
 		onScroll(e) {
-			console.log(e.target.scrollTop);
+			if (e.target.scrollTop === 0) {
+				e.target.scrollTop = 1000;
+			}
 		},
 		sendMessage(type = 'text') {
 			if (this.message) {
