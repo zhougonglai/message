@@ -1,11 +1,8 @@
 export default class Request {
 	baseUrl;
 	init = {
-		credentials: 'include',
 		mode: 'cors',
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-		},
+		// credentials: 'include',
 	};
 	controller;
 
