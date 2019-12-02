@@ -59,7 +59,10 @@
 											</div>
 										</div>
 										<div class="content-payload d-flex justify-end">
-											<div class="bable self">
+											<div
+												class="bable self"
+												@click="speech(messager.message.payload)"
+											>
 												{{ messager.message.payload }}
 											</div>
 										</div>
@@ -71,7 +74,7 @@
 					<v-divider />
 					<div class="chart-bord d-flex align-center">
 						<v-input class="carter">
-							<v-btn icon slot="prepend" x-large>
+							<v-btn icon slot="prepend" x-large @click="recognitionStar">
 								<v-icon x-large>mic_none</v-icon>
 							</v-btn>
 							<template slot="append">
@@ -134,7 +137,7 @@
 									<div
 										class="d-flex flex-column flex-grow-1 align-center justify-center full-height"
 									>
-										<v-btn icon x-large>
+										<v-btn icon x-large @click="voiceCallOn">
 											<v-icon x-large>message</v-icon>
 										</v-btn>
 										<p>语音通话</p>
@@ -164,14 +167,126 @@
 				</v-card>
 			</v-col>
 		</v-row>
+
+		<v-dialog
+			v-model="voiceCall.status"
+			fullscreen
+			hide-overlay
+			transition="dialog-bottom-transition"
+		>
+			<v-card tile>
+				<v-toolbar dark color="primary">
+					<v-btn icon dark @click="voiceCall.status = false">
+						<v-icon>mdi-close</v-icon>
+					</v-btn>
+					<v-toolbar-title>通话呼叫</v-toolbar-title>
+					<v-spacer></v-spacer>
+					<v-toolbar-items>
+						<v-btn dark text @click="voiceCall.status = false">Save</v-btn>
+					</v-toolbar-items>
+				</v-toolbar>
+				<v-row>
+					<v-col class="d-flex align-center justify-center">
+						<v-btn icon @click="callOn">
+							<v-icon>call</v-icon>
+						</v-btn>
+					</v-col>
+					<v-col class="d-flex flex-column align-center justify-center">
+						<template v-if="devices.audioinput.list.length">
+							<v-select
+								solo
+								v-model="devices.audioinput.target"
+								:hint="
+									`${devices.audioinput.target.label}, ${devices.audioinput.target.kind}`
+								"
+								:items="devices.audioinput.list"
+								item-text="label"
+								item-value="deviceId"
+								persistent-hint
+								return-object
+								single-line
+							/>
+						</template>
+						<template
+							v-if="devices.videoinput.list.length && devices.videoinput.target"
+						>
+							<v-select
+								solo
+								v-model="devices.videoinput.target"
+								:hint="
+									`${devices.videoinput.target.label}, ${devices.videoinput.target.kind}`
+								"
+								:items="devices.videoinput.list"
+								item-text="label"
+								item-value="deviceId"
+								persistent-hint
+								return-object
+								single-line
+							/>
+						</template>
+						<template v-if="devices.audiooutput.list.length">
+							<v-select
+								solo
+								v-model="devices.audiooutput.target"
+								:hint="
+									`${devices.audiooutput.target.label}, ${devices.audiooutput.target.kind}`
+								"
+								:items="devices.audiooutput.list"
+								item-text="label"
+								item-value="deviceId"
+								persistent-hint
+								return-object
+								single-line
+							/>
+						</template>
+					</v-col>
+				</v-row>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 <script>
 import { mapGetters, mapActions, mapState } from 'vuex';
+
 export default {
 	name: 'Detail',
 	data: () => ({
 		message: '',
+		recognition: {
+			target: null,
+			status: false,
+		},
+		speechRecognition: {
+			target: null,
+		},
+		mediaRecorder: null,
+		voiceCall: {
+			localstream: null,
+			target: new Audio(),
+			calling: false,
+			status: false,
+		},
+		videoCall: {
+			localstream: null,
+			status: false,
+		},
+		devices: {
+			// 麦克风
+			audioinput: {
+				target: {},
+				list: [],
+			},
+			// 摄像头
+			videoinput: {
+				target: {},
+				list: [],
+			},
+			// 扬声器
+			audiooutput: {
+				target: {},
+				list: [],
+			},
+		},
 	}),
 	computed: {
 		...mapState('user', ['info']),
@@ -191,8 +306,72 @@ export default {
 		// TODO
 		onScroll(e) {
 			if (e.target.scrollTop === 0) {
-				e.target.scrollTop = 1000;
+				console.log('到顶了');
 			}
+		},
+		voiceCallOn() {
+			this.voiceCall.status = true;
+			navigator.mediaDevices.enumerateDevices().then(devices => {
+				this.devices.audioinput.list = devices.filter(
+					device => device.kind === 'audioinput',
+				);
+				this.devices.audioinput.target = devices.find(
+					device =>
+						device.kind === 'audioinput' && device.deviceId === 'default',
+				);
+				this.devices.videoinput.list = devices.filter(
+					device => device.kind === 'videoinput',
+				);
+				this.devices.videoinput.target = devices.find(
+					device =>
+						device.kind === 'videoinput' && device.deviceId === 'default',
+				);
+				this.devices.audiooutput.list = devices.filter(
+					device => device.kind === 'audiooutput',
+				);
+				this.devices.audiooutput.target = devices.find(
+					device =>
+						device.kind === 'audiooutput' && device.deviceId === 'default',
+				);
+			});
+		},
+		async callOn() {
+			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+				this.voiceCall.localstream = await navigator.mediaDevices.getUserMedia({
+					audio: true,
+				});
+				console.log(this.voiceCall.localstream);
+				this.voiceCall.mediaRecorder = new MediaRecorder(
+					this.voiceCall.localstream,
+				);
+
+				this.voiceCall.mediaRecorder.start();
+			}
+		},
+		async videoOn() {
+			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+				this.videoCall.localstream = await navigator.mediaDevices.getUserMedia({
+					audio: true,
+					video: { facingMode: 'user' },
+				});
+				this.videoCall.mediaRecorder = new MediaRecorder(
+					this.videoCall.localstream,
+				);
+			}
+		},
+		recognitionStar() {
+			this.recognition.target.start();
+			setTimeout(() => {
+				this.recognition.target.stop();
+			}, 10000);
+		},
+		speech(text) {
+			this.speechRecognition.target = new SpeechSynthesisUtterance();
+			this.speechRecognition.target.text = text;
+			this.speechRecognition.target.volume = 1;
+			this.speechRecognition.target.rate = 1;
+			this.speechRecognition.target.pitch = 1;
+			window.speechSynthesis.speak(this.speechRecognition.target);
 		},
 		sendMessage(type = 'text') {
 			if (this.message) {
@@ -211,7 +390,27 @@ export default {
 		},
 		...mapActions('message', ['updateMessage']),
 	},
-	mounted() {},
+	mounted() {
+		const SpeechRecognition =
+			window.SpeechRecognition || window.webkitSpeechRecognition;
+		this.recognition.target = new SpeechRecognition();
+		this.recognition.target.continuous = true;
+		this.recognition.target.lang = 'zh-cn';
+		this.recognition.target.interimResults = false;
+		this.recognition.target.maxAlternatives = 1;
+		this.recognition.target.onresult = function(event) {
+			this.message = event.results[0][0].transcript;
+		};
+		this.recognition.target.onerror = function(event) {
+			console.log(event);
+		};
+		this.recognition.target.onstart = function(event) {
+			console.log(event);
+		};
+		this.recognition.target.onspeechend = function(event) {
+			console.log(event);
+		};
+	},
 };
 </script>
 <style lang="scss" scoped>
