@@ -27,42 +27,6 @@ export default class RTCClient {
 		this._showProfile = false;
 	}
 
-	handleEvents() {
-		this._client.on('error', err => {
-			console.log('error', err);
-			console.log(err);
-		});
-		// Occurs when the peer user leaves the channel; for example, the peer user calls Client.leave.
-		this._client.on('peer-leave', evt => {
-			console.log('peer-leave', evt);
-		});
-		// Occurs when the local stream is _published.
-		this._client.on('stream-published', evt => {
-			console.log('stream-published', evt);
-		});
-		// Occurs when the remote stream is added.
-		this._client.on('stream-added', evt => {
-			console.log('stream-added remote-uid: ', evt);
-		});
-		// Occurs when a user subscribes to a remote stream.
-		this._client.on('stream-subscribed', evt => {
-			console.log('stream-subscribed remote-uid: ', evt);
-		});
-		// Occurs when the remote stream is removed; for example, a peer user calls Client.unpublish.
-		this._client.on('stream-removed', evt => {
-			console.log('stream-removed remote-uid: ', evt);
-		});
-		this._client.on('onTokenPrivilegeWillExpire', () => {
-			console.log('onTokenPrivilegeWillExpire');
-		});
-		this._client.on('onTokenPrivilegeDidExpire', () => {
-			console.log('onTokenPrivilegeDidExpire');
-		});
-		this._client.on('network-quality', stats => {
-			console.log(stats);
-		});
-	}
-
 	join({
 		appID,
 		mode,
@@ -86,8 +50,6 @@ export default class RTCClient {
 			});
 
 			this._params = { appID, mode, codec, token, channel, uid };
-
-			this.handleEvents();
 
 			this._client.init(
 				appID,
@@ -161,6 +123,13 @@ export default class RTCClient {
 				},
 			);
 		});
+	}
+
+	_updateVideoInfo() {
+		this._localStream &&
+			this._localStream.getStats(stats => {
+				console.log('_updateVideoInfo', stats);
+			});
 	}
 
 	publish() {

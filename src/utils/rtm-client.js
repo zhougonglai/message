@@ -11,8 +11,15 @@ export default class {
 		this._client.on('ConnectionStateChanged', callBack);
 	}
 
-	sendMessageToPeer(callBack) {
-		this._client.sendMessageToPeer(callBack);
+	/**
+	 * type message {
+	 *  { text: 'test peer message' },
+	 * '<PEER_ID>'
+	 * }
+	 * @param {*} callBack
+	 */
+	sendMessageToPeer(payload, id) {
+		return this._client.sendMessageToPeer(payload, id);
 	}
 
 	login({ token, uid }) {

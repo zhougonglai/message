@@ -7,7 +7,6 @@ module.exports = {
 	pluginOptions: {
 		electronBuilder: {
 			builderOptions: {
-				publish: ['github'],
 				appId: 'cn.zhougonglai.messager',
 				productName: '消息',
 			},

@@ -271,6 +271,7 @@
 						<v-btn v-if="videoCall.calling" icon @click="videoDown" color="red">
 							<v-icon>call</v-icon>
 						</v-btn>
+						<video v-if="videoCall.url" :src="videoCall.url" controls />
 					</v-col>
 					<v-col class="d-flex flex-column align-center justify-center">
 						<template v-if="devices.audioinput.list.length">
@@ -346,7 +347,7 @@ export default {
 			status: false,
 		},
 		speechRecognition: {
-			target: null,
+			target: new SpeechSynthesisUtterance(),
 		},
 		mediaRecorder: null,
 		voiceCall: {
@@ -357,6 +358,7 @@ export default {
 		},
 		videoCall: {
 			localstream: null,
+			url: null,
 			status: false,
 		},
 		devices: {
@@ -395,7 +397,7 @@ export default {
 		// TODO
 		onScroll(e) {
 			if (e.target.scrollTop === 0) {
-				console.log('到顶了');
+				alert('到顶了');
 			}
 		},
 		voiceCallOn() {
@@ -444,19 +446,44 @@ export default {
 		},
 		videoCallOn() {
 			this.videoCall.status = true;
-			getDevices(devices => {
-				console.log(devices);
-			});
+			rtcClient
+				.join({
+					appID: '921f058a58694b73b69f62a061d9d070',
+					mode: 'rtc',
+					code: 'h264',
+					channel: this.$route.params.id,
+					uid: UUIDGeneratorBrowser(),
+				})
+				.then(() => {
+					console.log('rtcClient', rtcClient);
+					this.videoCall.localstream = rtcClient._localStream;
+					this.videoCall.url = URL.createObjectURL(rtcClient._localStream);
+					getDevices(devices => {
+						this.devices.audioinput.list = devices.filter(
+							device => device.kind === 'audioinput',
+						);
+						this.devices.audioinput.target = devices.find(
+							device =>
+								device.kind === 'audioinput' && device.deviceId === 'default',
+						);
+						this.devices.videoinput.list = devices.filter(
+							device => device.kind === 'videoinput',
+						);
+						this.devices.videoinput.target = devices.find(
+							device =>
+								device.kind === 'videoinput' && device.deviceId === 'default',
+						);
+						this.devices.audiooutput.list = devices.filter(
+							device => device.kind === 'audiooutput',
+						);
+						this.devices.audiooutput.target = devices.find(
+							device =>
+								device.kind === 'audiooutput' && device.deviceId === 'default',
+						);
+					});
+				});
 		},
-		async videoOn() {
-			rtcClient.join({
-				appID: '921f058a58694b73b69f62a061d9d070',
-				mode: 'rtc',
-				code: 'h264',
-				channel: this.$route.params.id,
-				uid: UUIDGeneratorBrowser(),
-			});
-		},
+		async videoOn() {},
 		async videoDown() {},
 		recognitionStar() {
 			this.recognition.target.start();
@@ -471,8 +498,13 @@ export default {
 			this.speechRecognition.target.pitch = 1;
 			window.speechSynthesis.speak(this.speechRecognition.target);
 		},
-		sendMessage(type = 'text') {
+		async sendMessage(type = 'text') {
 			if (this.message) {
+				const result = await rtmClient.sendMessageToPeer(
+					{ text: this.message },
+					this.$route.params.id,
+				);
+				console.log(result);
 				this.updateMessage({
 					user: this.info,
 					to: this.player,
