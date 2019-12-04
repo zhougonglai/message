@@ -20,7 +20,7 @@ function createWindow() {
 	// Create the browser window.
 	win = new BrowserWindow({
 		width: 1440,
-		height: 800,
+		height: 900,
 		webPreferences: {
 			nodeIntegration: true,
 		},
@@ -31,9 +31,9 @@ function createWindow() {
 		win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
 		// if (!process.env.IS_TEST) win.webContents.openDevTools();
 	} else {
-		createProtocol('app');
+		createProtocol('messager');
 		// Load the index.html when not in development
-		win.loadURL('app://./index.html');
+		win.loadURL('messager://./index.html');
 	}
 
 	win.on('closed', () => {

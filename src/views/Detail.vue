@@ -150,7 +150,7 @@
 									<div
 										class="d-flex flex-column flex-grow-1 align-center justify-center full-height"
 									>
-										<v-btn icon x-large>
+										<v-btn icon x-large @click="videoCallOn">
 											<v-icon x-large>videocam</v-icon>
 										</v-btn>
 										<p>视频聊天</p>
@@ -186,8 +186,89 @@
 					</v-toolbar-items>
 				</v-toolbar>
 				<v-row>
-					<v-col class="d-flex align-center justify-center">
+					<v-col class="d-flex flex-column align-center justify-center">
 						<v-btn icon @click="callOn">
+							<v-icon>call</v-icon>
+						</v-btn>
+						<v-btn v-if="voiceCall.calling" icon @click="callDown" color="red">
+							<v-icon>call</v-icon>
+						</v-btn>
+					</v-col>
+					<v-col class="d-flex flex-column align-center justify-center">
+						<template v-if="devices.audioinput.list.length">
+							<v-select
+								solo
+								v-model="devices.audioinput.target"
+								:hint="
+									`${devices.audioinput.target.label}, ${devices.audioinput.target.kind}`
+								"
+								:items="devices.audioinput.list"
+								item-text="label"
+								item-value="deviceId"
+								persistent-hint
+								return-object
+								single-line
+							/>
+						</template>
+						<template
+							v-if="devices.videoinput.list.length && devices.videoinput.target"
+						>
+							<v-select
+								solo
+								v-model="devices.videoinput.target"
+								:hint="
+									`${devices.videoinput.target.label}, ${devices.videoinput.target.kind}`
+								"
+								:items="devices.videoinput.list"
+								item-text="label"
+								item-value="deviceId"
+								persistent-hint
+								return-object
+								single-line
+							/>
+						</template>
+						<template v-if="devices.audiooutput.list.length">
+							<v-select
+								solo
+								v-model="devices.audiooutput.target"
+								:hint="
+									`${devices.audiooutput.target.label}, ${devices.audiooutput.target.kind}`
+								"
+								:items="devices.audiooutput.list"
+								item-text="label"
+								item-value="deviceId"
+								persistent-hint
+								return-object
+								single-line
+							/>
+						</template>
+					</v-col>
+				</v-row>
+			</v-card>
+		</v-dialog>
+		<v-dialog
+			v-model="videoCall.status"
+			fullscreen
+			hide-overlay
+			transition="dialog-bottom-transition"
+		>
+			<v-card tile>
+				<v-toolbar dark color="primary">
+					<v-btn icon dark @click="videoCall.status = false">
+						<v-icon>mdi-close</v-icon>
+					</v-btn>
+					<v-toolbar-title>视频呼叫</v-toolbar-title>
+					<v-spacer></v-spacer>
+					<v-toolbar-items>
+						<v-btn dark text @click="videoCall.status = false">save</v-btn>
+					</v-toolbar-items>
+				</v-toolbar>
+				<v-row>
+					<v-col class="d-flex flex-column align-center justify-center">
+						<v-btn icon @click="videoOn">
+							<v-icon>call</v-icon>
+						</v-btn>
+						<v-btn v-if="videoCall.calling" icon @click="videoDown" color="red">
 							<v-icon>call</v-icon>
 						</v-btn>
 					</v-col>
@@ -247,13 +328,21 @@
 </template>
 <script>
 import { mapGetters, mapActions, mapState } from 'vuex';
+import Adapter from '@/utils/rtc-adapter';
+import RTCCLient from '@/utils/rtc-client';
+import RTMCLient from '@/utils/rtm-client';
+import Recognition from '@/utils/recognition';
+
+const adapter = new Adapter();
+const rtcClient = new RTCCLient();
+const rtmClient = new RTMCLient();
 
 export default {
 	name: 'Detail',
 	data: () => ({
 		message: '',
 		recognition: {
-			target: null,
+			target: new Recognition(),
 			status: false,
 		},
 		speechRecognition: {
@@ -344,21 +433,31 @@ export default {
 				this.voiceCall.mediaRecorder = new MediaRecorder(
 					this.voiceCall.localstream,
 				);
-
+				console.log(this.voiceCall.mediaRecorder);
 				this.voiceCall.mediaRecorder.start();
+				this.voiceCall.calling = true;
 			}
+		},
+		async callDown() {
+			this.voiceCall.mediaRecorder.stop();
+			this.voiceCall.calling = false;
+		},
+		videoCallOn() {
+			this.videoCall.status = true;
+			console.log(adapter.getDevices());
 		},
 		async videoOn() {
-			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-				this.videoCall.localstream = await navigator.mediaDevices.getUserMedia({
-					audio: true,
-					video: { facingMode: 'user' },
-				});
-				this.videoCall.mediaRecorder = new MediaRecorder(
-					this.videoCall.localstream,
-				);
-			}
+			// if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+			// 	this.videoCall.localstream = await navigator.mediaDevices.getUserMedia({
+			// 		audio: true,
+			// 		video: { facingMode: 'user' },
+			// 	});
+			// 	this.videoCall.mediaRecorder = new MediaRecorder(
+			// 		this.videoCall.localstream,
+			// 	);
+			// }
 		},
+		async videoDown() {},
 		recognitionStar() {
 			this.recognition.target.start();
 			setTimeout(() => {
@@ -388,28 +487,17 @@ export default {
 				});
 			}
 		},
+		onresult(event) {
+			this.message = event.results[0][0].transcript;
+		},
+		onspeechend(event) {
+			this.message = event.target.message;
+		},
 		...mapActions('message', ['updateMessage']),
 	},
 	mounted() {
-		const SpeechRecognition =
-			window.SpeechRecognition || window.webkitSpeechRecognition;
-		this.recognition.target = new SpeechRecognition();
-		this.recognition.target.continuous = true;
-		this.recognition.target.lang = 'zh-cn';
-		this.recognition.target.interimResults = false;
-		this.recognition.target.maxAlternatives = 1;
-		this.recognition.target.onresult = function(event) {
-			this.message = event.results[0][0].transcript;
-		};
-		this.recognition.target.onerror = function(event) {
-			console.log(event);
-		};
-		this.recognition.target.onstart = function(event) {
-			console.log(event);
-		};
-		this.recognition.target.onspeechend = function(event) {
-			console.log(event);
-		};
+		this.recognition.target.onresult = this.onresult;
+		this.recognition.target.onspeechend = this.onspeechend;
 	},
 };
 </script>

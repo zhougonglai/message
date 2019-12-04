@@ -3,7 +3,7 @@ const app = require('../package');
 import { register } from 'register-service-worker';
 
 if (process.env.NODE_ENV === 'production') {
-	register(`${process.env.BASE_URL}service-worker.js?${app.version}`, {
+	register(`${process.env.BASE_URL}service-worker.js?v=${app.version}`, {
 		ready() {
 			console.log(
 				'App is being served from cache by a service worker.\n' +

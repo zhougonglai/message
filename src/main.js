@@ -5,6 +5,7 @@ import './styles/global.scss';
 import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
+import 'webrtc-adapter';
 
 Vue.config.productionTip = false;
 
