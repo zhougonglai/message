@@ -328,12 +328,12 @@
 </template>
 <script>
 import { mapGetters, mapActions, mapState } from 'vuex';
-import Adapter from '@/utils/rtc-adapter';
+import { UUIDGeneratorBrowser } from '@/utils/help';
 import RTCCLient from '@/utils/rtc-client';
 import RTMCLient from '@/utils/rtm-client';
 import Recognition from '@/utils/recognition';
+import { getDevices } from '@/utils/rtc-adapter';
 
-const adapter = new Adapter();
 const rtcClient = new RTCCLient();
 const rtmClient = new RTMCLient();
 
@@ -444,18 +444,18 @@ export default {
 		},
 		videoCallOn() {
 			this.videoCall.status = true;
-			console.log(adapter.getDevices());
+			getDevices(devices => {
+				console.log(devices);
+			});
 		},
 		async videoOn() {
-			// if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-			// 	this.videoCall.localstream = await navigator.mediaDevices.getUserMedia({
-			// 		audio: true,
-			// 		video: { facingMode: 'user' },
-			// 	});
-			// 	this.videoCall.mediaRecorder = new MediaRecorder(
-			// 		this.videoCall.localstream,
-			// 	);
-			// }
+			rtcClient.join({
+				appID: '921f058a58694b73b69f62a061d9d070',
+				mode: 'rtc',
+				code: 'h264',
+				channel: this.$route.params.id,
+				uid: UUIDGeneratorBrowser(),
+			});
 		},
 		async videoDown() {},
 		recognitionStar() {
@@ -465,7 +465,6 @@ export default {
 			}, 10000);
 		},
 		speech(text) {
-			this.speechRecognition.target = new SpeechSynthesisUtterance();
 			this.speechRecognition.target.text = text;
 			this.speechRecognition.target.volume = 1;
 			this.speechRecognition.target.rate = 1;
@@ -493,11 +492,16 @@ export default {
 		onspeechend(event) {
 			this.message = event.target.message;
 		},
+		rtmEvent(state, reason) {
+			console.log(state, reason);
+		},
 		...mapActions('message', ['updateMessage']),
 	},
 	mounted() {
 		this.recognition.target.onresult = this.onresult;
 		this.recognition.target.onspeechend = this.onspeechend;
+		rtmClient.login({ uid: UUIDGeneratorBrowser() });
+		rtmClient.handleEvent(this.rtmEvent);
 	},
 };
 </script>
