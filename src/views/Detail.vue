@@ -493,9 +493,6 @@ export default {
 		},
 		speech(text) {
 			this.speechRecognition.target.text = text;
-			this.speechRecognition.target.volume = 1;
-			this.speechRecognition.target.rate = 1;
-			this.speechRecognition.target.pitch = 1;
 			window.speechSynthesis.speak(this.speechRecognition.target);
 		},
 		async sendMessage(type = 'text') {
