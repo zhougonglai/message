@@ -167,7 +167,7 @@
 				</v-card>
 			</v-col>
 		</v-row>
-
+		<!-- @native API -->
 		<v-dialog
 			v-model="voiceCall.status"
 			fullscreen
@@ -193,6 +193,14 @@
 						<v-btn v-if="voiceCall.calling" icon @click="callDown" color="red">
 							<v-icon>call</v-icon>
 						</v-btn>
+						<video
+							autoplay
+							playsinline
+							controls
+							ref="video"
+							width="800"
+							height="650"
+						/>
 					</v-col>
 					<v-col class="d-flex flex-column align-center justify-center">
 						<template v-if="devices.audioinput.list.length">
@@ -246,6 +254,8 @@
 				</v-row>
 			</v-card>
 		</v-dialog>
+
+		<!-- agora dialog -->
 		<v-dialog
 			v-model="videoCall.status"
 			fullscreen
@@ -352,6 +362,7 @@ export default {
 		mediaRecorder: null,
 		voiceCall: {
 			localstream: null,
+			url: '',
 			target: new Audio(),
 			calling: false,
 			status: false,
@@ -397,9 +408,16 @@ export default {
 		// TODO
 		onScroll(e) {
 			if (e.target.scrollTop === 0) {
-				alert('到顶了');
+				alert('拉取历史消息');
 			}
 		},
+		/**
+		 * @native
+		 * @description
+		 *   steam step - 1
+		 *   getDevices
+		 *   拉取用户设备
+		 */
 		voiceCallOn() {
 			this.voiceCall.status = true;
 			navigator.mediaDevices.enumerateDevices().then(devices => {
@@ -426,24 +444,50 @@ export default {
 				);
 			});
 		},
+		/**
+		 * @native
+		 * @description
+		 * 获取 设备 音频流/视频流
+		 *
+		 */
 		async callOn() {
 			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 				this.voiceCall.localstream = await navigator.mediaDevices.getUserMedia({
 					audio: true,
+					video: true,
 				});
-				console.log(this.voiceCall.localstream);
-				this.voiceCall.mediaRecorder = new MediaRecorder(
-					this.voiceCall.localstream,
-				);
-				console.log(this.voiceCall.mediaRecorder);
-				this.voiceCall.mediaRecorder.start();
+				console.log(this.$refs.video, this.voiceCall.localstream);
+				if ('srcObject' in this.$refs.video) {
+					this.$refs.video.srcObject = this.voiceCall.localstream;
+				} else {
+					this.$refs.video.src = URL.createObjectURL(
+						this.voiceCall.localstream,
+					);
+				}
+
+				this.$refs.video.onloadedmetadata = () => {
+					this.$refs.video.play();
+				};
+				// this.voiceCall.mediaRecorder = new MediaRecorder(
+				// 	this.voiceCall.localstream,
+				// );
+				// console.log(this.voiceCall.mediaRecorder);
+				// this.voiceCall.mediaRecorder.start();
 				this.voiceCall.calling = true;
 			}
 		},
+		/**
+		 * @native
+		 * @description
+		 *   终止
+		 */
 		async callDown() {
 			this.voiceCall.mediaRecorder.stop();
 			this.voiceCall.calling = false;
 		},
+		/**
+		 * Agoya API
+		 */
 		videoCallOn() {
 			this.videoCall.status = true;
 			rtcClient
