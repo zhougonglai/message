@@ -6,9 +6,10 @@ module.exports = {
 	},
 	pluginOptions: {
 		electronBuilder: {
+			customFileProtocal: 'messager://./',
 			builderOptions: {
+				productName: 'Messager',
 				appId: 'cn.zhougonglai.messager',
-				productName: '消息',
 			},
 		},
 	},

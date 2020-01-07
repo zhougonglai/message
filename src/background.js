@@ -5,6 +5,7 @@ import {
 	createProtocol,
 	installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -17,10 +18,12 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 function createWindow() {
+	console.log(process.platform);
 	// Create the browser window.
 	win = new BrowserWindow({
 		width: 1440,
 		height: 900,
+		frame: false,
 		webPreferences: {
 			nodeIntegration: true,
 		},
