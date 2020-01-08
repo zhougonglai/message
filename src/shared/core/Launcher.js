@@ -1,13 +1,12 @@
 import { EventEmitter } from 'events';
-import { app, protocol, BrowserWindow } from 'electron';
+import { app, protocol, BrowserWindow, BrowserView } from 'electron';
 import {
 	createProtocol,
 	installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
 import logger from 'electron-log';
-import is from '@/shared/core/is';
-import ExceptionHandler from '@/shared/core/ExceptionHandler';
-import { EMPTY_STRING } from '@/shared/constants';
+import ExceptionHandler from './ExceptionHandler';
+import Application from './Application';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -18,6 +17,12 @@ export default class Launcher extends EventEmitter {
 			{ scheme: 'nn', privileges: { secure: true, standard: true } },
 		]);
 		this.init();
+	}
+
+	init() {
+		this.exceptionHandler = new ExceptionHandler();
+
+		this.handlerEvents();
 
 		if (isDevelopment) {
 			if (process.platform === 'win32') {
@@ -34,12 +39,6 @@ export default class Launcher extends EventEmitter {
 		}
 	}
 
-	init() {
-		this.exceptionHandler = new ExceptionHandler();
-
-		this.handlerEvents();
-	}
-
 	handlerEvents() {
 		// Quit when all windows are closed.
 		app.on('window-all-closed', () => {
@@ -53,8 +52,8 @@ export default class Launcher extends EventEmitter {
 		app.on('activate', () => {
 			// On macOS it's common to re-create a window in the app when the
 			// dock icon is clicked and there are no other windows open.
-			if (win === null) {
-				this.createWindow();
+			if (this.win === null) {
+				this.win = this.createWindow();
 			}
 		});
 
@@ -62,6 +61,7 @@ export default class Launcher extends EventEmitter {
 		// initialization and is ready to create browser windows.
 		// Some APIs can only be used after this event occurs.
 		app.on('ready', async () => {
+			global.application = new Application();
 			if (isDevelopment && !process.env.IS_TEST) {
 				// Install Vue Devtools
 				// Devtools extensions are broken in Electron 6.0.0 and greater
@@ -69,45 +69,49 @@ export default class Launcher extends EventEmitter {
 				// Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
 				// If you are not using Windows 10 dark mode, you may uncomment these lines
 				// In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
-				// try {
-				//   await installVueDevtools()
-				// } catch (e) {
-				//   console.error('Vue Devtools failed to install:', e.toString())
-				// }
+				try {
+					await installVueDevtools();
+				} catch (e) {
+					console.error('Vue Devtools failed to install:', e.toString());
+				}
 			}
-			this.createWindow();
+			this.win = this.createWindow();
 		});
 	}
 
-	createWindow(url = 'nn://./index.html') {
+	createWindow(url = 'nn://./') {
 		let win = new BrowserWindow({
 			width: 1440,
 			height: 860,
+			x: 10,
+			y: 150,
 			frame: false,
-			vibrancy: 'ultra-dark',
-			simpleFullscreen: true,
+			backgroundColor: 'transparent',
+			show: false,
 			webPreferences: {
 				nodeIntegration: true,
 			},
 		});
 
 		if (process.env.WEBPACK_DEV_SERVER_URL) {
+			logger.log(
+				`process.env.WEBPACK_DEV_SERVER_URL ===> ${process.env.WEBPACK_DEV_SERVER_URL}`,
+			);
 			win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+			if (!process.env.IS_TEST) win.webContents.openDevTools();
 		} else {
 			createProtocol('nn');
 			win.loadURL(url);
 		}
 
+		win.once('ready-to-show', () => {
+			win.show();
+		});
+
 		win.on('closed', () => {
 			win = null;
 		});
 
-		if (this.main && this.render_process) {
-			logger('[nn] >>> createWindow max exception');
-		} else if (!this.main) {
-			this.main = win;
-		} else if (!this.render_process) {
-			this.render_process = win;
-		}
+		return win;
 	}
 }

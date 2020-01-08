@@ -1,15 +1,14 @@
 module.exports = {
-	publicPath: '/',
 	transpileDependencies: ['vuetify'],
 	devServer: {
 		proxy: 'https://storeserverapi.zhougonglai.now.sh',
 	},
 	pluginOptions: {
 		electronBuilder: {
-			customFileProtocal: 'messager://./',
+			customFileProtocal: 'nn://./',
 			builderOptions: {
-				productName: 'Messager',
-				appId: 'cn.zhougonglai.messager',
+				productName: 'NN',
+				appId: 'cn.zhougonglai.nn',
 			},
 		},
 	},

@@ -1,6 +1,6 @@
 <template>
 	<v-app id="app">
-		<v-app-bar app color="transparent">
+		<v-app-bar app color="transparent" flat :class="[{ draggable }]">
 			<v-app-bar-nav-icon @click="drawer = !drawer" />
 			<div class="d-flex align-center mx-5  pointer" @click="$router.push('/')">
 				<svg class="logo mr-2" aria-hidden="true">
@@ -86,10 +86,13 @@
 </template>
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex';
+import is from '@/shared/core/is';
+
 export default {
 	name: 'App',
 	data: () => ({
 		drawer: false,
+		draggable: is.osx(),
 		items: [
 			{ heading: '游戏' },
 			{ icon: '#icon-ziyuan', text: '英雄联盟' },

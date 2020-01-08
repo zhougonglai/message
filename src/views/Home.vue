@@ -137,6 +137,7 @@
 </template>
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex';
+
 export default {
 	name: 'Home',
 	computed: {
@@ -148,7 +149,8 @@ export default {
 		...mapMutations('message', ['createMessageBox']),
 		chartWith(player) {
 			this.createMessageBox(player.user_id);
-			this.$router.push({ path: '/detail/' + player.user_id });
+			this.$ipc.push(player.user_id);
+			// this.$router.push({ path: '/detail/' + player.user_id });
 		},
 	},
 	mounted() {

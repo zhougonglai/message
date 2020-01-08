@@ -1,4 +1,5 @@
 import { app, dialog } from 'electron';
+import logger from 'electron-log';
 
 const defaults = {
 	showDialog: process.env.NODE_ENV !== 'developer',

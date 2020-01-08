@@ -1,10 +1,16 @@
 export default class ConfigManager {
-	systemConfig = {};
-	userConfig = {};
-
 	constructor() {
 		this.init();
+		this.systemConfig = {};
+		this.userConfig = {};
 	}
 
-	init() {}
+	init() {
+		this.initSystemConfig();
+		this.initUserConfig();
+	}
+
+	initSystemConfig() {}
+
+	initUserConfig() {}
 }

@@ -135,6 +135,10 @@ p {
 
 $n: 8px;
 
+.v-application {
+	background: transparent !important;
+}
+
 .v-app-bar {
-	backdrop-filter: blur(5px);
+	backdrop-filter: blur(25px);
 }
