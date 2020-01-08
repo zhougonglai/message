@@ -1,6 +1,6 @@
 <template>
 	<v-app id="app">
-		<v-app-bar app color="white">
+		<v-app-bar app color="transparent">
 			<v-app-bar-nav-icon @click="drawer = !drawer" />
 			<div class="d-flex align-center mx-5  pointer" @click="$router.push('/')">
 				<svg class="logo mr-2" aria-hidden="true">

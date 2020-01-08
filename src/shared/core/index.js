@@ -1,5 +1,5 @@
 'use strict';
 
-import Launcher from './shared/core/Launcher';
+import Launcher from './Launcher';
 
 global.launcher = new Launcher();
