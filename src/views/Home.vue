@@ -149,7 +149,7 @@ export default {
 		...mapMutations('message', ['createMessageBox']),
 		chartWith(player) {
 			this.createMessageBox(player.user_id);
-			this.$ipc.push(player.user_id);
+			this.$ipc.send('imPush');
 			// this.$router.push({ path: '/detail/' + player.user_id });
 		},
 	},
